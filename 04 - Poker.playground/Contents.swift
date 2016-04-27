@@ -66,7 +66,7 @@ struct PokerHand{
         return "\(cards)"
     }
     
-    init(cards: [Card]){
+    /*init(cards: [Card]){
         for index in 1...5 {
             let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
             let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
@@ -74,7 +74,7 @@ struct PokerHand{
             self.cards = [rndCard]
         }
         
-    }
+    }*/
 }
 
 
