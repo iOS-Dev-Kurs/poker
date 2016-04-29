@@ -41,6 +41,23 @@ enum Suit: Int, CustomStringConvertible {
     }
 }
 
+enum Ranking: Int {
+    case straightflush = 1, fourofakind = 2, fullhouse = 3, flush = 4, straight = 5, threeofakind = 6, twopair = 7, onepair = 8, highcard = 9
+    var description: String{
+        switch self{
+        case .straightflush: return "Straight flush"
+        case .fourofakind: return "Four of a kind"
+        case .fullhouse: return "Full house"
+        case .flush: return "Flush"
+        case .straight: return "Straight"
+        case .threeofakind: return "Three of a kind"
+        case .twopair: return "Two pair"
+        case .onepair: return "One pair"
+        case .highcard: return "High card"
+        }
+    }
+}
+
 /*Wieso struct? Weil Karten statische Dinge sind*/
 struct Card: CustomStringConvertible {
     /*Wieso enum? Weil sich die Faelle gegenseitig ausschließen und nur eine Karte eine Farbe und einen Rang haben kann */
@@ -61,6 +78,7 @@ func ==(lhs: Card, rhs: Card) -> Bool {
 
 struct PokerHand{
     let cards: [Card]
+    var ranking: Ranking
     
     init(){
         var p1 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
@@ -91,22 +109,41 @@ struct PokerHand{
             p5 = rndCard
         }
         cards = [p1, p2, p3, p4, p5]
+        ranking = Ranking(rawValue: 9)!
+        
+        if p1.rank == p2.rank || p1.rank == p3.rank || p1.rank == p4.rank || p1.rank == p5.rank || p2.rank == p3.rank || p2.rank == p4.rank || p2.rank == p5.rank || p3.rank == p4.rank || p3.rank == p4.rank || p3.rank == p5.rank || p4.rank == p5.rank{
+            ranking = Ranking(rawValue: 8)!
+        }
+        if (p1.rank == p2.rank && (p3.rank == p4.rank || p4.rank == p5.rank || p3.rank == p5.rank)) || (p1.rank == p3.rank && (p2.rank == p4.rank || p2.rank == p5.rank || p4.rank == p5.rank)) || (p1.rank == p4.rank && (p2.rank == p3.rank || p2.rank == p5.rank || p3.rank == p5.rank)) || (p1.rank == p5.rank && (p2.rank == p4.rank || p2.rank == p3.rank || p4.rank == p3.rank)) || (p2.rank == p3.rank && (p1.rank == p4.rank || p1.rank == p5.rank || p4.rank == p5.rank)) || (p2.rank == p4.rank && (p1.rank == p3.rank || p1.rank == p5.rank || p3.rank == p5.rank)) || (p2.rank == p5.rank && (p1.rank == p4.rank || p1.rank == p3.rank || p4.rank == p3.rank)) || (p3.rank == p4.rank && (p1.rank == p2.rank || p1.rank == p5.rank || p2.rank == p5.rank)) || (p3.rank == p5.rank && (p1.rank == p4.rank || p1.rank == p2.rank || p4.rank == p2.rank)) || (p4.rank == p5.rank && (p1.rank == p2.rank || p1.rank == p3.rank || p2.rank == p3.rank)){
+            ranking = Ranking(rawValue: 7)!
+        }
+        if (p1.rank==p2.rank && (p2.rank==p3.rank || p2.rank==p4.rank || p2.rank==p5.rank)) || (p1.rank==p3.rank && (p2.rank==p3.rank || p3.rank==p4.rank || p3.rank==p5.rank)) || (p1.rank==p4.rank && (p4.rank==p3.rank || p2.rank==p4.rank || p4.rank==p5.rank)) || (p1.rank==p5.rank && (p5.rank==p3.rank || p5.rank==p4.rank || p2.rank==p5.rank)) || (p2.rank==p3.rank && (p5.rank==p3.rank || p3.rank==p1.rank || p3.rank==p4.rank)) || (p2.rank==p4.rank && (p4.rank==p3.rank || p1.rank==p4.rank || p4.rank==p5.rank)) || (p2.rank==p5.rank && (p5.rank==p3.rank || p5.rank==p4.rank || p1.rank==p5.rank)) || (p3.rank==p4.rank && (p5.rank==p3.rank || p1.rank==p4.rank || p3.rank==p5.rank)) || (p3.rank==p5.rank && (p5.rank==p1.rank || p5.rank==p4.rank || p2.rank==p5.rank)) || (p4.rank==p5.rank && (p5.rank==p3.rank || p5.rank==p1.rank || p2.rank==p5.rank)){
+            ranking = Ranking(rawValue: 6)!
+        }
+        
+        if p1.suit==p2.suit && p1.suit == p3.suit && p1.suit == p4.suit && p1.suit == p5.suit {
+            ranking = Ranking(rawValue: 4)!
+        }
+
     }
     
     var description: String{
         return "\(cards)"
     }
+
 }
 
 
 let card = Card(suit: .Herz,rank: .ass)
 print(card)
 let hand = PokerHand()
+let rank = PokerHand().ranking
+print(rank)
 
 print(hand)
 
 //: ## Testing
-/*
+
 var rankingCounts = [Ranking : Int]()
 let samples = 100
 for i in 0...samples {
@@ -121,4 +158,4 @@ for i in 0...samples {
 for (ranking, count) in rankingCounts {
     print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
 }
-*/
+
