@@ -62,25 +62,48 @@ func ==(lhs: Card, rhs: Card) -> Bool {
 struct PokerHand{
     let cards: [Card]
     
+    init(){
+        var p1 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
+        var p2 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
+        var p3 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
+        var p4 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
+        var p5 = Card(suit: Suit(rawValue: 1)!, rank: Rank(rawValue: 1)!)
+        while p1==p2 || p1==p3 || p1==p4 || p1==p5 || p2==p3 || p2==p4 || p2==p5 || p3==p4 || p3==p5 || p4==p5{
+            var rndSuit = Suit(rawValue: Int(arc4random_uniform(4)+1))!
+            var rndRank = Rank(rawValue: Int(arc4random_uniform(13)+1))!
+            var rndCard = Card(suit: rndSuit, rank: rndRank)
+            p1 = rndCard
+            rndSuit = Suit(rawValue: Int(arc4random_uniform(4)+1))!
+            rndRank = Rank(rawValue: Int(arc4random_uniform(13)+1))!
+            rndCard = Card(suit: rndSuit, rank: rndRank)
+            p2 = rndCard
+            rndSuit = Suit(rawValue: Int(arc4random_uniform(4)+1))!
+            rndRank = Rank(rawValue: Int(arc4random_uniform(13)+1))!
+            rndCard = Card(suit: rndSuit, rank: rndRank)
+            p3 = rndCard
+            rndSuit = Suit(rawValue: Int(arc4random_uniform(4)+1))!
+            rndRank = Rank(rawValue: Int(arc4random_uniform(13)+1))!
+            rndCard = Card(suit: rndSuit, rank: rndRank)
+            p4 = rndCard
+            rndSuit = Suit(rawValue: Int(arc4random_uniform(4)+1))!
+            rndRank = Rank(rawValue: Int(arc4random_uniform(13)+1))!
+            rndCard = Card(suit: rndSuit, rank: rndRank)
+            p5 = rndCard
+        }
+        cards = [p1, p2, p3, p4, p5]
+    }
+    
     var description: String{
         return "\(cards)"
     }
-    
-    /*init(cards: [Card]){
-        for index in 1...5 {
-            let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
-            let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
-            let rndCard = Card(suit: rndSuit, rank: rndRank)
-            self.cards = [rndCard]
-        }
-        
-    }*/
 }
 
 
 let card = Card(suit: .Herz,rank: .ass)
 print(card)
-print("Hello World!")
+let hand = PokerHand()
+
+print(hand)
 
 //: ## Testing
 /*
