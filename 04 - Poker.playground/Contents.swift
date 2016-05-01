@@ -42,10 +42,10 @@ enum Rank: Int {
     case ace = 1
 }
 
-struct Card {
+struct Card: CustomStringConvertible {
     var suit: Suit
     var rank: Rank
-    var Description: String {
+    var description: String {
         switch self.suit {
         case .diamonds:
             switch self.rank {
@@ -175,13 +175,9 @@ func ==(lhs: Card, rhs: Card) -> Bool {
     return lhs.suit == rhs.suit && lhs.rank == rhs.rank
 }
 struct PokerHand {
-    var cards: [Card] = []
+    let cards: [Card]
     var description: String {
-        var Cards: String = ""
-        for i in 0...4 {
-            Cards += cards[i].Description
-        }
-        return Cards
+        return cards.map({ String($0) }).joinWithSeparator("")
     }
     var ranking: Ranking {
         var sameRank = 0
@@ -235,7 +231,7 @@ struct PokerHand {
             return Ranking.FourOfAKind
         } else if cards[0].suit == cards[1].suit && cards[1].suit == cards[2].suit && cards[2].suit == cards[3].suit && cards[3].suit == cards[4].suit {
             if cardRanks == [1,1,1,1,1,0,0,0,0,0,0,0,0,0] || cardRanks == [0,1,1,1,1,1,0,0,0,0,0,0,0,0] || cardRanks == [0,0,1,1,1,1,1,0,0,0,0,0,0,0] || cardRanks == [0,0,0,1,1,1,1,1,0,0,0,0,0,0] || cardRanks == [0,0,0,0,1,1,1,1,1,0,0,0,0,0] || cardRanks == [0,0,0,0,0,1,1,1,1,1,0,0,0,0] || cardRanks == [0,0,0,0,0,1,1,1,1,1,0,0,0,0] || cardRanks == [0,0,0,0,0,0,1,1,1,1,1,0,0,0] || cardRanks == [0,0,0,0,0,0,0,1,1,1,1,1,0,0] || cardRanks == [0,0,0,0,0,0,0,0,1,1,1,1,1,0] || cardRanks == [0,0,0,0,0,0,0,0,0,1,1,1,1,1] {
-                print("Awesome! Straight flush: " + cards[0].Description + cards[1].Description + cards[2].Description + cards[3].Description + cards[4].Description)
+                print("Awesome! Straight flush: " + self.description)
                 return Ranking.StraightFlush
             } else {
                 return Ranking.Flush
@@ -249,24 +245,17 @@ struct PokerHand {
     
     init() {
         var i = 0
+        var newcards: [Card] = []
         while i < 5 {
             let rndSuit = Suit(rawValue: Int(arc4random_uniform(4) + 1))!
             let rndRank = Rank(rawValue: Int(arc4random_uniform(13) + 1))!
             let rndCard = Card(suit: rndSuit, rank: rndRank)
-            cards.append(rndCard)
-            var isNewCard = true
-            if i > 0 {
-                for j in 0...i-1 {
-                    if rndCard == cards[j] {
-                        isNewCard = false
-                        cards.removeLast()
-                    }
-                }
-            }
-            if isNewCard {
+            if !newcards.contains(rndCard) {
+                newcards.append(rndCard)
                 i += 1
             }
         }
+        self.cards = newcards
     }
 }
 
@@ -289,7 +278,7 @@ extension Ranking: CustomStringConvertible {
 }
 
 var rankingCounts = [Ranking : Int]()
-let samples = 1000
+let samples = 1
 for i in 0...samples {
     let ranking = PokerHand().ranking
     if rankingCounts[ranking] == nil {
