@@ -57,8 +57,16 @@ struct Card: CustomStringConvertible {
     }
 }
 
+extension Card: Equatable {}
+
+
+
+func ==(lhs: Card, rhs: Card) -> Bool {
+    return lhs.suit == rhs.suit && lhs.rank == rhs.rank
+}
+
 struct PokerHand: CustomStringConvertible{
-    let cards: [Card]
+    let cards: [Card?] = [nil,nil,nil,nil,nil]
     var description: String {
     return PrintHand()
     }
@@ -69,14 +77,13 @@ struct PokerHand: CustomStringConvertible{
         let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
         let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
         let rndCard = Card(suit: rndSuit, rank: rndRank)
-        
         for i in 0...5 {
-        while self.cards.contains(rndCard) {
+        if (self.cards.contains(rndCard)) {
             let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
             let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
             let rndCard = Card(suit: rndSuit, rank: rndRank)
-        }
-        self.cards.append(rndCard)
+       }
+        self.cards[i]=rndCard
         }
     }
     
@@ -90,35 +97,36 @@ struct PokerHand: CustomStringConvertible{
     func PrintHand() -> String {
         var variableString: String = ""
         for card in self.cards {
-            variableString+=card.description
+            variableString+=card!.description
         }
         return variableString
     }
 }
 
 
-extension Card: Equatable {}
-
-func ==(lhs: Card, rhs: Card) -> Bool {
-        return lhs.suit == rhs.suit && lhs.rank == rhs.rank
-}
 
 
 
-//: ## Testing
-/*
-var rankingCounts = [Ranking : Int]()
-let samples = 100
-for i in 0...samples {
-    let ranking = PokerHand().ranking
-    if rankingCounts[ranking] == nil {
-        rankingCounts[ranking] = 1
-    } else {
-        rankingCounts[ranking]! += 1
-    }
-}
 
-for (ranking, count) in rankingCounts {
-    print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
-}
-*/
+
+////: ## Testing
+//let test = PokerHand()
+//print(test)
+let Card1 = Card(suit: .diamonds, rank: .eight)
+let Card2 = Card(suit: .diamonds, rank: .nine)
+print(Card1)
+//var rankingCounts = [Ranking : Int]()
+//let samples = 100
+//for i in 0...samples {
+//    let ranking = PokerHand().ranking
+//    if rankingCounts[ranking] == nil {
+//        rankingCounts[ranking] = 1
+//    } else {
+//        rankingCounts[ranking]! += 1
+//    }
+//}
+
+//for (ranking, count) in rankingCounts {
+//    print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
+//}
+
