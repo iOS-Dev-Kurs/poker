@@ -7,26 +7,150 @@
 */
 /*
  EURE ANTWORT HIER
+ Wir nutzen für Card ein Struct, da es sich um eine statische Sache handelt, die sich nicht ändert. (und nicht als Referenz übergeben werden soll, wenn wir eine Hand erzeugen.)
+ Für Suit und Rank kommen am besten Enums in Frage, weil
 */
+import Foundation
 
-
-
-
-
-//: ## Testing
-/*
-var rankingCounts = [Ranking : Int]()
-let samples = 100
-for i in 0...samples {
-    let ranking = PokerHand().ranking
-    if rankingCounts[ranking] == nil {
-        rankingCounts[ranking] = 1
-    } else {
-        rankingCounts[ranking]! += 1
+enum Suit: Int, CustomStringConvertible {
+    case diamonds, hearts, clubbs,spades
+    
+    var description: String {
+        switch self {
+        case .diamonds: return "♦"
+        case .clubbs: return "♣"
+        case .hearts: return "♥"
+        case .spades: return "♣"
+        }
     }
 }
 
-for (ranking, count) in rankingCounts {
-    print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
+enum Rank: Int {
+    case two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, ace
+    
+    var description: String{
+        switch self {
+        case .two: return "2"
+        case .three: return "3"
+        case .four: return "4"
+        case .five: return "5"
+        case .six: return   "6"
+        case .seven: return "7"
+        case .eight: return "8"
+        case .nine: return "9"
+        case .ten: return "10"
+        case .jack: return "J"
+        case .queen: return "Q"
+        case .king: return "K"
+        case .ace: return "A"
+        }
+    }
 }
-*/
+
+struct Card: CustomStringConvertible {
+    let suit: Suit
+    let rank: Rank
+    
+    var description: String {
+        return "\(rank) \(suit)"
+        
+    }
+}
+
+extension Card: Equatable {}
+
+
+
+func ==(lhs: Card, rhs: Card) -> Bool {
+    return lhs.suit == rhs.suit && lhs.rank == rhs.rank
+}
+
+enum Ranking: Int, CustomStringConvertible {
+    case Flush, HighCard
+    
+    var description: String {
+        switch self {
+        case .Flush: return "Flush"
+        case .HighCard: return "High Card"
+        }
+    }
+}
+
+struct PokerHand: CustomStringConvertible{
+    let cards: [Card?] = [nil,nil,nil,nil,nil]
+    var description: String {
+    return PrintHand()
+    }
+    var ranking: Ranking {
+        for card in self.cards {
+            if (card!.suit != self.cards[0]!.suit){
+                let ranking = Ranking.HighCard
+                return ranking
+            }
+        }
+        let ranking = Ranking.Flush
+        return ranking
+    }
+
+
+    
+    
+    // Initializer
+    init() {
+        let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
+        let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
+        let rndCard = Card(suit: rndSuit, rank: rndRank)
+        for i in 0...5 {
+            while (contains(self.cards,rndCard)) {
+                let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
+                let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
+                let rndCard = Card(suit: rndSuit, rank: rndRank)
+            }
+            self.cards[i]=rndCard
+        }
+    }
+    
+    
+    func NewRandomCard () -> Card {
+        let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
+        let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
+        let rndCard = Card(suit: rndSuit, rank: rndRank)
+        return rndCard
+    }
+    
+    func PrintHand() -> String {
+        var variableString: String = ""
+        for card in self.cards {
+            variableString+=card!.description
+        }
+        return variableString
+    }
+}
+
+
+
+
+
+
+
+////: ## Testing
+//let test = PokerHand()
+//print(test)
+let Card1 = Card(suit: .diamonds, rank: .eight)
+let Card2 = Card(suit: .diamonds, rank: .nine)
+print(Card1)
+//var rankingCounts = [Ranking : Int]()
+//let samples = 100
+//for i in 0...samples {
+//    let ranking = PokerHand().ranking
+//    if rankingCounts[ranking] == nil {
+//        rankingCounts[ranking] = 1
+//    } else {
+//        rankingCounts[ranking]! += 1
+//    }
+//}
+
+//for (ranking, count) in rankingCounts {
+//    print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
+//}
+
