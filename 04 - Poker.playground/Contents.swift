@@ -65,11 +65,34 @@ func ==(lhs: Card, rhs: Card) -> Bool {
     return lhs.suit == rhs.suit && lhs.rank == rhs.rank
 }
 
+enum Ranking: Int, CustomStringConvertible {
+    case Flush, HighCard
+    
+    var description: String {
+        switch self {
+        case .Flush: return "Flush"
+        case .HighCard: return "High Card"
+        }
+    }
+}
+
 struct PokerHand: CustomStringConvertible{
     let cards: [Card?] = [nil,nil,nil,nil,nil]
     var description: String {
     return PrintHand()
     }
+    var ranking: Ranking {
+        for card in self.cards {
+            if (card!.suit != self.cards[0]!.suit){
+                let ranking = Ranking.HighCard
+                return ranking
+            }
+        }
+        let ranking = Ranking.Flush
+        return ranking
+    }
+
+
     
     
     // Initializer
@@ -78,14 +101,15 @@ struct PokerHand: CustomStringConvertible{
         let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
         let rndCard = Card(suit: rndSuit, rank: rndRank)
         for i in 0...5 {
-        if (self.cards.contains(rndCard)) {
-            let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
-            let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
-            let rndCard = Card(suit: rndSuit, rank: rndRank)
-       }
-        self.cards[i]=rndCard
+            while (contains(self.cards,rndCard)) {
+                let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
+                let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
+                let rndCard = Card(suit: rndSuit, rank: rndRank)
+            }
+            self.cards[i]=rndCard
         }
     }
+    
     
     func NewRandomCard () -> Card {
         let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
