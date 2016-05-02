@@ -11,10 +11,11 @@
  2. Enums eignen sich, weil es bei der Suit- und Rank-Auswahl mehrere Möglichkeiten gibt, welche sich gegenseitig ausschließen
 */
 
+import Foundation
 
-enum Rank: Int {
+enum Rank: Int, CustomStringConvertible {
     case Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace
-    func RankDescription() -> String {
+    var description: String {
         switch self {
         case .Ace:
             return "Ace"
@@ -46,9 +47,9 @@ enum Rank: Int {
     }
 }
 
-enum Suit: Int {
+enum Suit: Int, CustomStringConvertible {
     case Spades, Hearts, Diamonds, Clubs
-    func SuitDescription() -> String {
+    var description: String {
         switch self {
         case .Spades:
             return "U+2660"
@@ -62,6 +63,24 @@ enum Suit: Int {
     }
 }
 
+struct Card: CustomStringConvertible {
+    let suit: Suit
+    let rank: Rank
+    var description: String {
+        return "\(Rank.self) + \(Suit.self)"
+    }
+}
+
+struct Pokerhand {
+    let cards: [Card]
+    var description: String {
+        return "\(Rank.self) + \(Suit.self)"
+    }
+}
+
+let rndSuit = Suit(rawValue: Int(arc4random_uniform(4)))!
+let rndRank = Rank(rawValue: Int(arc4random_uniform(13)))!
+let rndCard = Card(suit: rndSuit, rank: rndRank)
 //: ## Testing
 /*
 var rankingCounts = [Ranking : Int]()
