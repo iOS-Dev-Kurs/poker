@@ -66,6 +66,20 @@ func==(lhs: Card, rhs: Card) -> Bool {
     return lhs.suit == rhs.suit && lhs.rank == rhs.rank
 }
 
+enum Ranking: Int {
+    case highCard, flush
+    
+    var description: String {
+        switch self {
+        case .flush:
+            return "Flush"
+        default:
+            return "Highcard"
+        }
+    }
+}
+
+
 struct PokerHand {
     var cards: [Card] = []
     
@@ -85,23 +99,49 @@ struct PokerHand {
     var description: String {
         var out = ""
         for card in cards {
-            out += "\(card.suit), \(card.rank) "
+            out += "\(card.suit) \(card.rank) "
         }
         return out
+    }
+    
+    var ranking: Ranking {
+        var hearts = 0
+        var diamonds = 0
+        var spades = 0
+        var clubs = 0
+        for card in cards {
+            if card.suit == .Hearts {
+                hearts += 1
+            }
+            if card.suit == .Diamonds {
+                diamonds += 1
+            }
+            if card.suit == .Spades {
+                spades += 1
+            }
+            if card.suit == .Clubs {
+                clubs += 1
+            }
+        }
+        if hearts >= 4 || diamonds >= 4 || spades >= 4 || clubs >= 4 {
+            return .flush
+        }
+        return .highCard
     }
     
 }
 var test = PokerHand()
 var zwei = PokerHand()
 print (zwei.description)
+print (test.description)
 
 
 
 
 //: ## Testing
-/*
+
 var rankingCounts = [Ranking : Int]()
-let samples = 100
+let samples = 200
 for i in 0...samples {
     let ranking = PokerHand().ranking
     if rankingCounts[ranking] == nil {
@@ -114,4 +154,4 @@ for i in 0...samples {
 for (ranking, count) in rankingCounts {
     print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
 }
-*/
+
