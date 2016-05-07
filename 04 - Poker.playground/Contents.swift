@@ -125,9 +125,9 @@ struct PokerHand {
         while cards.count < 5 {
             print("\(cards.count)")
                 let newCard = Card.createCard()
-                if newCard != cards[cards.count] {
-                    cards.append(newCard)
-                }
+                if cards.contains(newCard) {
+                    break
+                } else {cards.append(newCard)}
         }
         return cards
     }
