@@ -18,7 +18,7 @@ import Foundation
 import UIKit
 
 enum Ranks: Int, CustomStringConvertible {
-    case Ass = 1, König, Dame, Bube, Zehn, Neun, Acht, Sieben, Sechs, Fünf, Vier, Drei, Zwei
+    case Ass, König, Dame, Bube, Zehn, Neun, Acht, Sieben, Sechs, Fünf, Vier, Drei, Zwei
     
     var description: String
     {
@@ -57,7 +57,7 @@ enum Ranks: Int, CustomStringConvertible {
 // CustomStringConvertible Protocol kann nicht ausgeführt werden und meldet Error
 
 enum Suits: Int, CustomStringConvertible {
-    case Karo = 1
+    case Karo
     case Herz
     case Kreuz
     case Pik
@@ -83,7 +83,7 @@ struct Card: CustomStringConvertible {
     var rank : Ranks
     var suit : Suits
     
-    init (rank: Ranks, suit: Suits) {
+    init (suit: Suits, rank: Ranks) {
         self.rank = rank
         self.suit = suit
     }
@@ -96,7 +96,7 @@ struct Card: CustomStringConvertible {
     static func createCard() -> Card {
         let rndRank = Ranks(rawValue: Int(arc4random_uniform(13)))!
         let rndSuit = Suits(rawValue: Int(arc4random_uniform(4)))!
-        let rndCard = Card(rank: rndRank, suit: rndSuit)
+        let rndCard = Card(suit: rndSuit, rank: rndRank)
         
         let strgCard = String(rndCard)
         print("Your Card: \(strgCard)")
@@ -122,17 +122,12 @@ struct PokerHand {
         var cards = [Card]()
         let card = Card.createCard()
         cards.append(card)
-        if cards.count < 5 {
+        while cards.count < 5 {
             print("\(cards.count)")
-            for index in cards.indices {
-                print("for")
                 let newCard = Card.createCard()
-                while newCard != cards[index] {
-                    cards.append(card)
+                if newCard != cards[cards.count] {
+                    cards.append(newCard)
                 }
-            }
-        } else {
-            print("No Way")
         }
         return cards
     }
