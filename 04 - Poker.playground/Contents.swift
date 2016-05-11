@@ -93,7 +93,7 @@ func ==(lhs: Card, rhs: Card) -> Bool {
 
 
 enum Ranking: Int, CustomStringConvertible {
-    case highcard = 1, pair = 2, triplet = 3, fullHouse = 4, quadruple = 5, flush = 6, straight = 7, straightFlush = 8
+    case highcard = 1, pair = 2, twoPair = 3, triplet = 4, fullHouse = 5, quadruple = 6, flush = 7, straight = 8, straightFlush = 9
     
     
     var description: String {
@@ -103,6 +103,8 @@ enum Ranking: Int, CustomStringConvertible {
             return "High Card"
         case .pair:
             return "Pair"
+        case .twoPair:
+            return "2 Pairs"
         case .triplet:
             return "Triplet"
         case .fullHouse:
@@ -137,7 +139,7 @@ struct PokerHand {
                 i += 1
             }
         }
-   //: cards = cards.sort({$0.rank.rawValue > $1.rank.rawValue})
+        cards = cards.sort({$0.rank.rawValue > $1.rank.rawValue})
     }
     
 
@@ -153,45 +155,66 @@ struct PokerHand {
     
     var ranking: Ranking {
         
-        for i in 1...4 {
-            let reference = cards[i].suit
-            let test = cards[i+1].suit
-            if test != reference {
-                break
-                
-            }
+        if HasFlush(cards) {
             return .flush
+            }
             
-        }
-/*          var iqualRank = 1
+        else if PairCount(cards) == 1 {
+            return .pair
+            }
+            
+        else if PairCount(cards) == 2 {
+            return .twoPair
+            }
+            
+        else {
+            return .highcard
+            }
         
-         for i in 1...4 {
-            
-            let reference = cards[i].rank
-            let test = cards[i+1].rank
-            if test == reference {
-                iqualRank += 1
-            }
         }
-        
-            if iqualRank == 2 {
-                return .pair
-            }
-            if iqualRank == 3 {
-                return .triplet
-            }
-            if iqualRank == 4 {
-                return .quadruple
-            }
-            
-*/
-        return .highcard
+}
+
+       
        
         
-    }
+   
 
+
+func HasFlush (cards : [Card]) -> Bool {
+    var hasFlush: Bool = false
+    for i in 1...4 {
+        let reference = cards[i].suit
+        let test = cards[i+1].suit
+        if test != reference {
+        
+            break
+            
+        }
+    hasFlush = true
+    
+    }
+    return hasFlush
+}
+
+func PairCount (cards : [Card]) -> Int {
+    var pairCount: Int = 0
+    var i: Int = 0
+    while i < 5 {
+        let reference = cards[i].rank
+        let test = cards[i+1].rank
+        if test == reference {
+            pairCount += 1
+            i += 2
+            
+        } else {
+            i += 1
+        }
+    }
+    return pairCount
     
 }
+
+    
 
 
 
@@ -199,8 +222,8 @@ struct PokerHand {
 //: ## Testing
 
 var rankingCounts = [Ranking : Int]()
-let samples = 100
-for i in 0...samples {
+let samples = 2
+for i in 0..<samples {
     let ranking = PokerHand().ranking
     if rankingCounts[ranking] == nil {
         rankingCounts[ranking] = 1
