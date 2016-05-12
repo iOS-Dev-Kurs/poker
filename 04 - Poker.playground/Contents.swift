@@ -93,7 +93,7 @@ func ==(lhs: Card, rhs: Card) -> Bool {
 
 
 enum Ranking: Int, CustomStringConvertible {
-    case highcard = 1, pair = 2, twoPair = 3, triplet = 4, fullHouse = 5, quadruple = 6, flush = 7, straight = 8, straightFlush = 9
+    case highcard = 1, pair = 2, twoPair = 3, triplet = 4, fullHouse = 5, quadruple = 6, flush = 7, straight = 8, straightFlush = 9, royalFlush = 10
     
     
     var description: String {
@@ -106,17 +106,19 @@ enum Ranking: Int, CustomStringConvertible {
         case .twoPair:
             return "2 Pairs"
         case .triplet:
-            return "Triplet"
+            return "Three of a kind"
         case .fullHouse:
             return "Full House"
         case .quadruple:
-            return "Vierer, Mann!"
+            return "Four of a kind"
         case .flush:
             return "Krass alter, n Flush!"
         case .straight:
             return "Boa, ne Straße"
         case .straightFlush:
-            return "Wahnsinns Typ!"
+            return "Straigh Flush! Du Wahnsinns Typ!"
+        case .royalFlush:
+            return "Royal Flush"
             
         }
     }
@@ -155,74 +157,134 @@ struct PokerHand {
     
     var ranking: Ranking {
         
-        if HasFlush(cards) {
+        
+        if (HasStraight(cards) && HasFlush(cards).hasFlush && HasFlush(cards).highestRank.rawValue == 14) {
+            return .royalFlush
+        }
+            
+        else if (HasStraight(cards) && HasFlush(cards).hasFlush) {
+            return .straightFlush
+        }
+        else if HasPair(cards).hasVierling {
+            return .quadruple
+        }
+            
+        else if (HasPair(cards).hasSecondPair && HasPair(cards).hasTriple && (HasPair(cards).highPairRank != HasPair(cards).highTripleRank || HasPair(cards).secondPairRank != HasPair(cards).highTripleRank )) {
+            return .fullHouse
+        }
+        else if HasStraight(cards) {
+            return .straight
+        }
+        
+        else if HasFlush(cards).hasFlush {
             return .flush
             }
             
-        else if PairCount(cards) == 1 {
-            return .pair
-            }
-            
-        else if PairCount(cards) == 2 {
-            return .twoPair
-            }
-            
-        else {
-            return .highcard
-            }
-        
+        else if HasPair(cards).hasTriple {
+            return .triplet
         }
+            
+        else if HasPair(cards).hasSecondPair {
+            return .twoPair
+        }
+        
+        else if HasPair(cards).hasPair {
+            return .pair
+        }
+        
+    
+        else {
+           return .highcard
+        }
+        
+    }
+    
+    
 }
 
-       
-       
-        
-   
 
 
-func HasFlush (cards : [Card]) -> Bool {
+
+func HasFlush (cards : [Card]) -> (hasFlush: Bool, highestRank: Rank) {
     var hasFlush: Bool = false
+    let reference = cards[0].suit
+    let highestCard = cards[0].rank
+    
     for i in 1...4 {
-        let reference = cards[i].suit
-        let test = cards[i+1].suit
-        if test != reference {
+        
+        
+        if cards[i].suit != reference {
         
             break
             
         }
-    hasFlush = true
+        if i==4 { hasFlush = true }
     
     }
-    return hasFlush
+    
+    return (hasFlush, highestCard)
 }
 
-func PairCount (cards : [Card]) -> Int {
-    var pairCount: Int = 0
-    var i: Int = 0
+func HasPair (cards : [Card]) -> (hasPair: Bool, hasSecondPair: Bool, hasTriple: Bool, hasVierling: Bool, highPairRank: Rank?, secondPairRank: Rank?, highTripleRank: Rank?) {
+
+    var hasPair: Bool = false
+    var hasSecondPair: Bool = false
+    var hasTriple: Bool = false
+    var hasVierling: Bool = false
+    var highPairRank: Rank? = nil
+    var highTripleRank: Rank? = nil
+    var secondPairRank: Rank? = nil
+    
+    for i in 1...4 {
+        if cards[i].rank == cards[i-1].rank {
+            if !hasPair {
+                // finde erstes Pärchen
+                hasPair = true
+                highPairRank = cards[i].rank
+            }
+            else { // 2tes paar oder drilling oder vierling
+                hasSecondPair = true
+                secondPairRank = cards[i].rank
+            }
+            if (i < 4 && cards[i + 1].rank == cards[i].rank) { //Drilling gefunden
+                hasTriple = true
+                highTripleRank = cards[i].rank
+            }
+            if(i < 3 && cards[i + 1].rank == cards[i].rank && cards[i + 2].rank == cards[i].rank) { // Vierling gefunden
+                hasVierling = true
+            }
+        }
+    
+    }
+    return (hasPair, hasSecondPair, hasTriple, hasVierling, highPairRank, secondPairRank, highTripleRank)
+}
+
+
+func HasStraight (cards : [Card]) -> Bool {
+    var hasStraight: Bool = false
+    var i: Int = 1
     while i < 5 {
-        let reference = cards[i].rank
-        let test = cards[i+1].rank
-        if test == reference {
-            pairCount += 1
-            i += 2
+        if 1 + cards[i].rank.rawValue ==  cards[i-1].rank.rawValue {
+            i += 1
             
         } else {
-            i += 1
+            break
+            
         }
+        if i == 4 {hasStraight = true}
     }
-    return pairCount
-    
+    return hasStraight
 }
 
-    
-
-
-
-
+/* let hand = PokerHand()
+print(hand.cards[0].rank.rawValue)
+print(hand.cards[1].rank.rawValue)
+print(hand.cards[2].rank.rawValue)
+ */
 //: ## Testing
 
 var rankingCounts = [Ranking : Int]()
-let samples = 2
+let samples = 10
 for i in 0..<samples {
     let ranking = PokerHand().ranking
     if rankingCounts[ranking] == nil {
@@ -235,4 +297,3 @@ for i in 0..<samples {
 for (ranking, count) in rankingCounts {
     print("The probability of being dealt a \(ranking.description) is \(Double(count) / Double(samples) * 100)%")
 }
-
